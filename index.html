@@ -1,199 +1,1328 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GONDEZZ DOWNLOADER</title>
+    <title>GONDEZZ DOWNLOADER V1.0</title>
+    <!-- Font Awesome untuk ikon modern -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: linear-gradient(135deg, #0d0d0d, #1a1a2e);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a0a1a;
             color: #fff;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            transition: background 0.3s;
+            overflow-x: hidden;
         }
-        .container {
-            max-width: 420px;
+        body.light {
+            background: #f0f0f5;
+            color: #1a1a2e;
+        }
+
+        /* ============================================================
+           GIF BACKGROUND — FULL SCREEN
+           ============================================================ */
+        .gif-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 30px 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            border: 1px solid rgba(255,255,255,0.08);
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.25;
         }
-        h1 {
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 5px;
-            background: linear-gradient(90deg, #ff2d55, #ff6b35);
+        body.light .gif-bg {
+            opacity: 0.15;
+        }
+
+        /* ============================================================
+           SEMUA KONTEN DI ATAS BACKGROUND
+           ============================================================ */
+        .app-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* SPLASH SCREEN */
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0a0a1a;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s, transform 0.8s;
+        }
+        body.light #splash {
+            background: #f0f0f5;
+        }
+        #splash.hide {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+        #splash .logo-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #6c2bd9;
+            box-shadow: 0 0 40px rgba(108, 43, 217, 0.2);
+        }
+        #splash .logo-text {
+            font-size: 32px;
+            font-weight: 900;
+            margin-top: 12px;
+            background: linear-gradient(135deg, #ff2d55, #ff6b35, #6c2bd9, #00d4ff);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 900;
+            animation: gradientMove 2s ease-in-out infinite alternate;
         }
-        .sub {
-            text-align: center;
-            color: #888;
+        #splash .sub-text {
             font-size: 13px;
-            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 4px;
+            letter-spacing: 3px;
+        }
+        body.light #splash .sub-text {
+            color: rgba(0, 0, 0, 0.25);
+        }
+        #splash .loader {
+            margin-top: 25px;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(108, 43, 217, 0.1);
+            border-top: 3px solid #6c2bd9;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px 8px;
+            background: rgba(10, 10, 30, 0.7);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        body.light .header {
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom-color: rgba(0, 0, 0, 0.04);
+        }
+        .header .logo-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(108, 43, 217, 0.2);
+        }
+        .header .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 18px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        body.light .header .back-btn {
+            background: rgba(0, 0, 0, 0.05);
+            color: rgba(0, 0, 0, 0.5);
+        }
+        .header h1 {
+            font-size: 17px;
+            font-weight: 800;
+            flex: 1;
+            background: linear-gradient(135deg, #ff2d55, #ff6b35, #6c2bd9, #00d4ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientMove 4s ease-in-out infinite alternate;
+        }
+        .header .theme-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            cursor: pointer;
+        }
+        body.light .header .theme-btn {
+            background: rgba(0, 0, 0, 0.05);
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        .time-display {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.12);
+            padding: 2px 14px 6px;
+            font-weight: 300;
             letter-spacing: 1px;
         }
-        .input-group {
-            margin-bottom: 15px;
+        body.light .time-display {
+            color: rgba(0, 0, 0, 0.12);
         }
-        label {
+
+        /* PAGE */
+        .page {
+            display: none;
+            padding: 8px 12px 80px;
+            animation: fadeIn 0.3s ease;
+        }
+        .page.active {
             display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* MENU */
+        .menu-list {
+            padding: 2px 0;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 8px;
+        }
+        body.light .menu-item {
+            border-bottom-color: rgba(0, 0, 0, 0.03);
+        }
+        .menu-item:hover {
+            background: rgba(108, 43, 217, 0.05);
+        }
+        .menu-item .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .menu-item .icon {
+            font-size: 20px;
+            width: 32px;
+            text-align: center;
+            color: #6c2bd9;
+        }
+        .menu-item .info .title {
             font-size: 13px;
-            color: #aaa;
-            margin-bottom: 5px;
             font-weight: 600;
         }
-        input, select {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.1);
+        .menu-item .info .desc {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.25);
+        }
+        body.light .menu-item .info .desc {
+            color: rgba(0, 0, 0, 0.25);
+        }
+        .menu-item .right .badge {
+            background: rgba(108, 43, 217, 0.08);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 8px;
+            color: #6c2bd9;
+            border: 1px solid rgba(108, 43, 217, 0.04);
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 30, 0.85);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            justify-content: space-around;
+            padding: 4px 0 10px;
+            z-index: 100;
+        }
+        body.light .bottom-nav {
+            background: rgba(255, 255, 255, 0.85);
+            border-top-color: rgba(0, 0, 0, 0.04);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            padding: 2px 8px;
+        }
+        body.light .nav-item {
+            color: rgba(0, 0, 0, 0.2);
+        }
+        .nav-item.active {
+            color: #6c2bd9;
+        }
+        .nav-item .icon {
+            font-size: 18px;
+            margin-bottom: 1px;
+        }
+
+        /* CARD */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 14px;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            margin-bottom: 10px;
+        }
+        body.light .card {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: rgba(0, 0, 0, 0.04);
+        }
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        body.light .card-title {
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        .input-group {
+            margin-bottom: 8px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 2px;
+        }
+        body.light .input-group label {
+            color: rgba(0, 0, 0, 0.3);
+        }
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
             color: #fff;
-            font-size: 15px;
+            font-size: 12px;
             outline: none;
             transition: 0.3s;
         }
-        input:focus, select:focus {
-            border-color: #ff2d55;
-            background: rgba(255,45,85,0.1);
+        body.light .input-group input,
+        body.light .input-group select {
+            background: rgba(0, 0, 0, 0.04);
+            border-color: rgba(0, 0, 0, 0.05);
+            color: #1a1a2e;
         }
-        select option {
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #6c2bd9;
+            box-shadow: 0 0 15px rgba(108, 43, 217, 0.06);
+        }
+        .input-group select option {
             background: #1a1a2e;
             color: #fff;
         }
-        button {
+        body.light .input-group select option {
+            background: #fff;
+            color: #1a1a2e;
+        }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .row3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 4px 0 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: #6c2bd9;
+        }
+        .checkbox-group label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.35);
+        }
+        body.light .checkbox-group label {
+            color: rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-primary {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(90deg, #ff2d55, #ff6b35);
+            padding: 10px;
+            background: linear-gradient(135deg, #ff2d55, #6c2bd9);
             border: none;
-            border-radius: 14px;
+            border-radius: 10px;
             color: #fff;
-            font-size: 18px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             transition: 0.3s;
-            margin-top: 10px;
-            letter-spacing: 0.5px;
+            box-shadow: 0 3px 15px rgba(108, 43, 217, 0.12);
         }
-        button:active {
+        .btn-primary:active {
             transform: scale(0.97);
-            opacity: 0.8;
         }
-        #status {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 14px;
-            font-size: 14px;
+
+        .result-box {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
             text-align: center;
-            min-height: 60px;
-            word-break: break-all;
-            border: 1px solid rgba(255,255,255,0.05);
+            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            min-height: 35px;
+            line-height: 1.5;
+        }
+        body.light .result-box {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.03);
         }
         .success {
-            color: #4ade80;
+            color: #4ade80 !important;
         }
         .error {
-            color: #f87171;
+            color: #f87171 !important;
         }
         .loading {
-            color: #fbbf24;
+            color: #fbbf24 !important;
         }
-        .footer {
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 10px;
+            margin: 6px 0;
+        }
+
+        .tutorial-step {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        body.light .tutorial-step {
+            border-color: rgba(0, 0, 0, 0.02);
+        }
+        .tutorial-step b {
+            color: #6c2bd9;
+        }
+
+        .saran-link {
+            display: block;
             text-align: center;
-            margin-top: 20px;
-            font-size: 11px;
-            color: #555;
+            padding: 10px;
+            background: rgba(37, 211, 102, 0.06);
+            border-radius: 12px;
+            color: #25D366;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+            border: 1px solid rgba(37, 211, 102, 0.06);
         }
-        .badge {
-            display: inline-block;
-            background: rgba(255,45,85,0.2);
-            padding: 2px 12px;
-            border-radius: 20px;
+        .saran-link:hover {
+            background: rgba(37, 211, 102, 0.1);
+        }
+
+        .history-item {
+            font-size: 10px;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            display: flex;
+            justify-content: space-between;
+        }
+        body.light .history-item {
+            border-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .platform-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 12px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        body.light .platform-item {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.04);
+        }
+        .platform-item:hover {
+            background: rgba(108, 43, 217, 0.04);
+        }
+        .platform-item .icon {
+            font-size: 28px;
+        }
+        .platform-item .name {
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .platform-item .desc {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+        body.light .platform-item .desc {
+            color: rgba(0, 0, 0, 0.2);
+        }
+
+        .fake-call-image-result {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 8px;
+            max-height: 600px;
+            object-fit: contain;
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        body.light .upload-zone {
+            border-color: rgba(0, 0, 0, 0.05);
+        }
+        .upload-zone:hover {
+            border-color: rgba(108, 43, 217, 0.15);
+            background: rgba(108, 43, 217, 0.02);
+        }
+        .upload-zone .icon {
+            font-size: 32px;
+        }
+        .upload-zone .text {
             font-size: 11px;
-            color: #ff2d55;
-            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 4px;
+        }
+        body.light .upload-zone .text {
+            color: rgba(0, 0, 0, 0.25);
+        }
+        .upload-zone .formats {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.12);
+            margin-top: 2px;
+        }
+        body.light .upload-zone .formats {
+            color: rgba(0, 0, 0, 0.12);
+        }
+        .upload-zone input[type="file"] {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                padding: 6px 8px 80px;
+            }
+            .header {
+                padding: 8px 10px 6px;
+            }
+            .header h1 {
+                font-size: 15px;
+            }
+            .row2 {
+                grid-template-columns: 1fr;
+            }
+            .row3 {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .platform-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .menu-item {
+                padding: 8px 10px;
+            }
+            .menu-item .icon {
+                font-size: 18px;
+                width: 28px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>⬇️ GONDEZZ</h1>
-        <div class="sub">ALL-IN-ONE DOWNLOADER</div>
-        
-        <div class="input-group">
-            <label>📎 Link</label>
-            <input type="text" id="urlInput" placeholder="Paste link YouTube/TikTok/Instagram...">
+
+    <!-- ============================================================
+    GIF BACKGROUND — FULL SCREEN
+    ============================================================ -->
+    <img 
+        class="gif-bg" 
+        src="https://media2.giphy.com/media/v1.Y2lkPTZjMDliOTUyeWRkN2R3cHFxdTZuMzFvbWQ2bjJ5Zmh2Zmhob3dscXY1OHRweDNlZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/11YwKEz3ebQAZq/giphy.gif"
+        alt="Animated Background"
+        loading="lazy"
+    >
+
+    <!-- ============================================================
+    SPLASH SCREEN
+    ============================================================ -->
+    <div id="splash">
+        <img src="https://i.ibb.co.com/kgHwj00q/u-1qb8xiwx1l-angel-10259507-1280.png" class="logo-img" alt="Gondezz Logo" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⬇️</text></svg>'">
+        <div class="logo-text">GONDEZZ</div>
+        <div class="sub-text">Tools & Free Downloader</div>
+        <div class="loader"></div>
+    </div>
+
+    <!-- ============================================================
+    APP CONTAINER
+    ============================================================ -->
+    <div class="app-container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <button class="back-btn" id="backBtn" onclick="goHome()">‹</button>
+            <img src="https://i.ibb.co.com/kgHwj00q/u-1qb8xiwx1l-angel-10259507-1280.png" class="logo-small" alt="Logo" onerror="this.style.display='none'">
+            <h1 id="pageTitle">GONDEZZ</h1>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
         </div>
-        
-        <div class="input-group">
-            <label>🎯 Format</label>
-            <select id="formatSelect">
-                <option value="mp4">🎬 MP4 (Video)</option>
-                <option value="mp3">🎵 MP3 (Audio)</option>
-            </select>
+        <div class="time-display" id="timeDisplay">--:--</div>
+
+        <!-- PAGE HOME -->
+        <div class="page active" id="pageHome">
+            <div class="menu-list" id="menuContainer"></div>
         </div>
-        
-        <button onclick="downloadMedia()">⬇️ DOWNLOAD NOW</button>
-        
-        <div id="status">✨ Siap download...</div>
-        <div class="badge">🔥 v2.0 | Only Android</div>
-        <div class="footer">© 2026 Gondezz Studio</div>
+
+        <!-- PAGE BRAT -->
+        <div class="page" id="pageBrat">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-font" style="color:#6c2bd9;margin-right:8px;"></i> BRAT Generator</div>
+                <div class="input-group">
+                    <label>Masukkan teks</label>
+                    <input type="text" id="bratInput" placeholder="Tulis teks untuk BRAT...">
+                </div>
+                <div class="input-group">
+                    <label>Warna Background</label>
+                    <input type="color" id="bratColor" value="#000000">
+                </div>
+                <button class="btn-primary" onclick="generateBRAT()"><i class="fas fa-play" style="margin-right:6px;"></i> Proses</button>
+                <div class="result-box" id="bratResult">Masukkan input lalu klik Proses.</div>
+                <div id="bratImageContainer" style="display:none;margin-top:10px;text-align:center;">
+                    <img id="bratGeneratedImage" class="preview-img" alt="BRAT Result">
+                    <div style="margin-top:8px;">
+                        <button class="btn-primary" style="width:auto;padding:6px 20px;font-size:12px;" onclick="downloadBRATImage()"><i class="fas fa-download" style="margin-right:6px;"></i> Download</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-book-open" style="color:#6c2bd9;margin-right:8px;"></i> Tutorial</div>
+                <div class="tutorial-step"><b>1.</b> Masukkan teks yang ingin dijadikan BRAT</div>
+                <div class="tutorial-step"><b>2.</b> Pilih warna background</div>
+                <div class="tutorial-step"><b>3.</b> Klik tombol <b>"Proses"</b></div>
+                <div class="tutorial-step"><b>4.</b> Klik <b>"Download"</b> untuk menyimpan</div>
+            </div>
+        </div>
+
+        <!-- PAGE REMOVE BG -->
+        <div class="page" id="pageRemoveBg">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-image" style="color:#6c2bd9;margin-right:8px;"></i> Remove BG</div>
+                <div class="upload-zone" onclick="document.getElementById('removeBgFile').click()">
+                    <div class="icon"><i class="fas fa-cloud-upload-alt" style="font-size:32px;color:#6c2bd9;"></i></div>
+                    <div class="text">Klik untuk upload foto</div>
+                    <div class="formats">JPG · PNG · WebP</div>
+                    <input type="file" id="removeBgFile" accept="image/*" onchange="handleRemoveBG(event)">
+                </div>
+                <div id="removeBgPreview" style="display:none;text-align:center;margin-bottom:8px;">
+                    <img id="removeBgImg" class="preview-img">
+                </div>
+                <button class="btn-primary" onclick="processRemoveBG()" id="removeBgBtn" style="display:none;"><i class="fas fa-eraser" style="margin-right:6px;"></i> Hapus Background</button>
+                <div class="result-box" id="removeBgResult">Upload foto untuk menghapus background.</div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-book-open" style="color:#6c2bd9;margin-right:8px;"></i> Tutorial</div>
+                <div class="tutorial-step"><b>1.</b> Upload foto yang ingin dihapus background-nya</div>
+                <div class="tutorial-step"><b>2.</b> Klik <b>"Hapus Background"</b></div>
+                <div class="tutorial-step"><b>3.</b> Hasil akan muncul dan bisa di-download</div>
+            </div>
+        </div>
+
+        <!-- PAGE FOTO TO LINK -->
+        <div class="page" id="pageFotoLink">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-link" style="color:#6c2bd9;margin-right:8px;"></i> Foto to Link</div>
+                <div class="upload-zone" onclick="document.getElementById('fotoLinkFile').click()">
+                    <div class="icon"><i class="fas fa-cloud-upload-alt" style="font-size:32px;color:#6c2bd9;"></i></div>
+                    <div class="text">Klik untuk upload foto</div>
+                    <div class="formats">JPG · PNG · WebP</div>
+                    <input type="file" id="fotoLinkFile" accept="image/*" onchange="handleFotoLink(event)">
+                </div>
+                <div id="fotoLinkPreview" style="display:none;text-align:center;margin-bottom:8px;">
+                    <img id="fotoLinkImg" class="preview-img">
+                </div>
+                <div class="row3">
+                    <div class="input-group" style="margin:0;grid-column:span 2;">
+                        <label>Link hasil</label>
+                        <input type="text" id="fotoLinkResultLink" placeholder="Link akan muncul disini" readonly style="background:rgba(255,255,255,0.02);">
+                    </div>
+                    <div class="input-group" style="margin:0;">
+                        <label>Format</label>
+                        <select id="fotoLinkFormat">
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="processFotoLink()" id="fotoLinkBtn" style="display:none;"><i class="fas fa-link" style="margin-right:6px;"></i> Buat Link</button>
+                <div class="result-box" id="fotoLinkResult">Upload foto untuk mendapatkan link.</div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-book-open" style="color:#6c2bd9;margin-right:8px;"></i> Tutorial</div>
+                <div class="tutorial-step"><b>1.</b> Upload foto yang ingin dijadikan link</div>
+                <div class="tutorial-step"><b>2.</b> Pilih format (JPG/PNG/WebP)</div>
+                <div class="tutorial-step"><b>3.</b> Klik <b>"Buat Link"</b></div>
+                <div class="tutorial-step"><b>4.</b> Salin link yang muncul</div>
+            </div>
+        </div>
+
+        <!-- PAGE FAKE CALL -->
+        <div class="page" id="pageFakeCall">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-phone-alt" style="color:#6c2bd9;margin-right:8px;"></i> Fake WhatsApp Call</div>
+                <div class="input-group">
+                    <label><i class="fas fa-user" style="margin-right:4px;"></i> Nama Kontak</label>
+                    <input type="text" id="fakeName" placeholder="Nama kontak..." value="Dek Piraa">
+                </div>
+                <button class="btn-primary" onclick="generateFakeCall()"><i class="fas fa-phone-alt" style="margin-right:6px;"></i> Generate</button>
+                <div class="result-box" id="fakeCallResult" style="min-height:60px;">Preview akan muncul disini</div>
+                <div id="fakeCallImageContainer" style="display:none;margin-top:10px;text-align:center;">
+                    <img id="fakeCallGeneratedImage" class="fake-call-image-result" alt="Fake Call Result">
+                    <div style="margin-top:8px;">
+                        <button class="btn-primary" style="width:auto;padding:6px 20px;font-size:12px;" onclick="downloadFakeCallImage()"><i class="fas fa-download" style="margin-right:6px;"></i> Download</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-book-open" style="color:#6c2bd9;margin-right:8px;"></i> Tutorial</div>
+                <div class="tutorial-step"><b>1.</b> Masukkan nama kontak</div>
+                <div class="tutorial-step"><b>2.</b> Klik <b>"Generate"</b></div>
+                <div class="tutorial-step"><b>3.</b> Hasil akan muncul sebagai gambar</div>
+                <div class="tutorial-step"><b>4.</b> Klik <b>"Download"</b> untuk menyimpan</div>
+            </div>
+        </div>
+
+        <!-- PAGE DOWNLOADER -->
+        <div class="page" id="pageDownloader">
+            <div class="card">
+                <div class="card-title" id="downloaderTitle"><i class="fas fa-download" style="color:#6c2bd9;margin-right:8px;"></i> Downloader</div>
+                <div class="platform-grid" id="platformGrid">
+                    <div class="platform-item" onclick="openPlatform('YouTube')">
+                        <div class="icon"><i class="fab fa-youtube" style="color:#FF0000;"></i></div>
+                        <div class="name">YouTube</div>
+                        <div class="desc">Video & Audio</div>
+                    </div>
+                    <div class="platform-item" onclick="openPlatform('TikTok')">
+                        <div class="icon"><i class="fab fa-tiktok"></i></div>
+                        <div class="name">TikTok</div>
+                        <div class="desc">No Watermark</div>
+                    </div>
+                    <div class="platform-item" onclick="openPlatform('Instagram')">
+                        <div class="icon"><i class="fab fa-instagram" style="color:#E4405F;"></i></div>
+                        <div class="name">Instagram</div>
+                        <div class="desc">Video & Foto</div>
+                    </div>
+                    <div class="platform-item" onclick="openPlatform('Facebook')">
+                        <div class="icon"><i class="fab fa-facebook" style="color:#1877F2;"></i></div>
+                        <div class="name">Facebook</div>
+                        <div class="desc">Video HD</div>
+                    </div>
+                    <div class="platform-item" onclick="openPlatform('Twitter')">
+                        <div class="icon"><i class="fab fa-x-twitter"></i></div>
+                        <div class="name">Twitter/X</div>
+                        <div class="desc">Video</div>
+                    </div>
+                    <div class="platform-item" onclick="openPlatform('Pinterest')">
+                        <div class="icon"><i class="fab fa-pinterest" style="color:#E60023;"></i></div>
+                        <div class="name">Pinterest</div>
+                        <div class="desc">Video</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="platformForm" style="display:none;">
+                <div class="card-title" id="platformTitle"><i class="fas fa-download" style="color:#6c2bd9;margin-right:8px;"></i> Download</div>
+                <div class="input-group">
+                    <label><i class="fas fa-link" style="margin-right:4px;"></i> Tautan</label>
+                    <input type="text" id="downloadUrl" placeholder="Tempel link...">
+                </div>
+                <div class="row2">
+                    <div class="input-group">
+                        <label><i class="fas fa-file" style="margin-right:4px;"></i> Format</label>
+                        <select id="downloadFormat">
+                            <option value="mp4"><i class="fas fa-video"></i> MP4</option>
+                            <option value="mp3"><i class="fas fa-music"></i> MP3</option>
+                            <option value="jpg"><i class="fas fa-image"></i> JPG</option>
+                            <option value="png"><i class="fas fa-image"></i> PNG</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-expand" style="margin-right:4px;"></i> Resolusi</label>
+                        <select id="downloadRes">
+                            <option value="Normal">Normal 480p</option>
+                            <option value="HD" selected>HD 720p</option>
+                            <option value="ULTRA HD">ULTRA HD 1080p</option>
+                            <option value="2K">2K 1440p</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="downloadGif">
+                    <label><i class="fas fa-film" style="margin-right:4px;"></i> Convert to GIF</label>
+                </div>
+                <button class="btn-primary" onclick="doDownload()"><i class="fas fa-download" style="margin-right:6px;"></i> UNDUH SEKARANG</button>
+                <div class="result-box" id="downloadResult">✨ Siap download...</div>
+            </div>
+            <div class="card">
+                <div class="card-title" style="display:flex;justify-content:space-between;">
+                    <span><i class="fas fa-history" style="margin-right:6px;color:#6c2bd9;"></i> Riwayat</span>
+                    <button onclick="clearHistory()" style="background:none;border:none;color:#ff2d55;font-size:10px;cursor:pointer;"><i class="fas fa-trash" style="margin-right:4px;"></i> Hapus</button>
+                </div>
+                <div id="historyBox"><div style="text-align:center;color:rgba(255,255,255,0.12);font-size:11px;padding:6px 0;">Belum ada riwayat</div></div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-book-open" style="color:#6c2bd9;margin-right:8px;"></i> Tutorial</div>
+                <div class="tutorial-step"><b>1.</b> Pilih platform yang ingin di-download</div>
+                <div class="tutorial-step"><b>2.</b> Paste link di kolom Tautan</div>
+                <div class="tutorial-step"><b>3.</b> Pilih Format & Resolusi</div>
+                <div class="tutorial-step"><b>4.</b> Klik <b>"UNDUH SEKARANG"</b></div>
+            </div>
+        </div>
+
+        <!-- PAGE TUTORIAL -->
+        <div class="page" id="pageTutorial">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-graduation-cap" style="color:#6c2bd9;margin-right:8px;"></i> Tutorial Lengkap</div>
+                <div class="tutorial-step"><i class="fas fa-font" style="color:#6c2bd9;margin-right:6px;"></i> <b>BRAT Generator:</b> Buat teks gaya BRAT dengan custom warna</div>
+                <div class="tutorial-step"><i class="fas fa-image" style="color:#6c2bd9;margin-right:6px;"></i> <b>Remove BG:</b> Hapus background foto</div>
+                <div class="tutorial-step"><i class="fas fa-link" style="color:#6c2bd9;margin-right:6px;"></i> <b>Foto to Link:</b> Upload foto dapatkan link (JPG/PNG/WebP)</div>
+                <div class="tutorial-step"><i class="fas fa-phone-alt" style="color:#6c2bd9;margin-right:6px;"></i> <b>Fake Call:</b> Buat mockup panggilan WhatsApp</div>
+                <div class="tutorial-step"><i class="fas fa-download" style="color:#6c2bd9;margin-right:6px;"></i> <b>Downloader:</b> Download dari 6 platform</div>
+            </div>
+        </div>
+
+        <!-- PAGE SARAN -->
+        <div class="page" id="pageSaran">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-comment-dots" style="color:#6c2bd9;margin-right:8px;"></i> Saran & Kritik</div>
+                <div style="text-align:center;padding:6px 0;">
+                    <div style="font-size:40px;"><i class="fas fa-comment-dots" style="color:#6c2bd9;"></i></div>
+                    <div style="font-size:13px;margin:6px 0;">Kirim saran & kritik untuk Gondezz Downloader</div>
+                    <a href="https://wa.me/6285134777721?text=min%20mo%20ngasih%20saran%20nih%20buat%20Gondezz%20Downloader" target="_blank" class="saran-link">
+                        <i class="fab fa-whatsapp" style="margin-right:6px;"></i> Chat via WhatsApp
+                    </a>
+                    <div style="font-size:9px;color:rgba(255,255,255,0.12);margin-top:8px;">wa.me/6285134777721</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="navigateHome()"><span class="icon"><i class="fas fa-home"></i></span> Beranda</button>
+            <button class="nav-item" onclick="navigateTo('pageDownloader')"><span class="icon"><i class="fas fa-download"></i></span> Download</button>
+            <button class="nav-item" onclick="navigateTo('pageSaran')"><span class="icon"><i class="fas fa-comment-dots"></i></span> Saran</button>
+        </div>
+
     </div>
 
     <script>
-        function downloadMedia() {
-            const url = document.getElementById('urlInput').value.trim();
-            const format = document.getElementById('formatSelect').value;
-            const status = document.getElementById('status');
+        // ========== MENU ==========
+        const menuData = [
+            { id: 'brat', icon: '<i class="fas fa-font"></i>', title: 'BRAT Generator', desc: 'Buat teks gaya BRAT', tag: 'NEW!' },
+            { id: 'removebg', icon: '<i class="fas fa-image"></i>', title: 'Remove BG', desc: 'Hapus background', tag: 'TOOLS' },
+            { id: 'fotolink', icon: '<i class="fas fa-link"></i>', title: 'Foto to Link', desc: 'JPG/PNG/WebP', tag: 'INSTANT' },
+            { id: 'fakecall', icon: '<i class="fas fa-phone-alt"></i>', title: 'Fake WhatsApp Call', desc: 'Call mockup', tag: 'CUSTOM' },
+            { id: 'downloader', icon: '<i class="fas fa-download"></i>', title: 'Downloader', desc: '6 Platform support', tag: 'ALL' },
+            { id: 'tutorial', icon: '<i class="fas fa-graduation-cap"></i>', title: 'Tutorial', desc: 'Cara pakai', tag: 'GUIDE' },
+            { id: 'saran', icon: '<i class="fas fa-comment-dots"></i>', title: 'Saran & Kritik', desc: 'wa.me/6285134777721', tag: '→' },
+        ];
 
-            if (!url) {
-                status.innerHTML = '❌ Masukkan link dulu, Tuan!';
-                status.className = 'error';
+        const titleMap = {
+            brat: 'BRAT Generator',
+            removebg: 'Remove BG',
+            fotolink: 'Foto to Link',
+            fakecall: 'Fake Call',
+            downloader: 'Downloader',
+            tutorial: 'Tutorial',
+            saran: 'Saran',
+            home: 'GONDEZZ'
+        };
+
+        const pageMap = {
+            brat: 'pageBrat',
+            removebg: 'pageRemoveBg',
+            fotolink: 'pageFotoLink',
+            fakecall: 'pageFakeCall',
+            downloader: 'pageDownloader',
+            tutorial: 'pageTutorial',
+            saran: 'pageSaran',
+            home: 'pageHome'
+        };
+
+        function renderMenu() {
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = menuData.map(m => `
+                    <div class="menu-item" onclick="navigateToPage('${m.id}')">
+                        <div class="left">
+                            <span class="icon">${m.icon}</span>
+                            <div class="info">
+                                <div class="title">${m.title}</div>
+                                <div class="desc">${m.desc}</div>
+                            </div>
+                        </div>
+                        <div class="right"><span class="badge">${m.tag}</span></div>
+                    </div>
+                `).join('');
+        }
+
+        function navigateToPage(id) {
+            const pageId = pageMap[id] || 'pageHome';
+            navigateTo(pageId);
+            document.getElementById('pageTitle').textContent = titleMap[id] || titleMap.home;
+            document.getElementById('backBtn').style.display = (id === 'home') ? 'none' : 'flex';
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function goHome() {
+            navigateTo('pageHome');
+            document.getElementById('pageTitle').textContent = titleMap.home;
+            document.getElementById('backBtn').style.display = 'none';
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelector('.nav-item:first-child').classList.add('active');
+            document.getElementById('platformForm').style.display = 'none';
+            document.getElementById('platformGrid').style.display = 'grid';
+        }
+
+        function navigateHome() { goHome(); }
+
+        // ========== SPLASH ==========
+        setTimeout(() => {
+            document.getElementById('splash').classList.add('hide');
+        }, 2500);
+
+        // ========== JAM ==========
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit',
+                minute: '2-digit' });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // ========== THEME ==========
+        let dark = true;
+
+        function toggleTheme() {
+            dark = !dark;
+            document.body.classList.toggle('light', !dark);
+            document.getElementById('themeBtn').textContent = dark ? '🌙' : '☀️';
+        }
+
+        // ========== BRAT ==========
+        function generateBRAT() {
+            const input = document.getElementById('bratInput');
+            const color = document.getElementById('bratColor').value;
+            const result = document.getElementById('bratResult');
+            const container = document.getElementById('bratImageContainer');
+            const img = document.getElementById('bratGeneratedImage');
+
+            if (!input.value.trim()) {
+                result.innerHTML = '❌ Masukkan teks dulu!';
+                result.className = 'result-box error';
                 return;
             }
 
-            status.innerHTML = '⏳ Memproses download...';
-            status.className = 'loading';
+            result.innerHTML = '🔄 Membuat gambar...';
+            result.className = 'result-box loading';
 
-            // Kirim ke backend
-            fetch('http://localhost:5000/download', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url, format: format })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    status.innerHTML = `✅ ${data.message} <br> 📁 ${data.filename}`;
-                    status.className = 'success';
-                    
-                    // Auto download
-                    window.location.href = `http://localhost:5000/download-file/${data.filename}`;
-                } else {
-                    status.innerHTML = `❌ Error: ${data.message}`;
-                    status.className = 'error';
-                }
-            })
-            .catch(err => {
-                status.innerHTML = `❌ Gagal konek ke server: ${err.message}`;
-                status.className = 'error';
-            });
+            fetch('/brat-generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: input.value, color: color })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        img.src = data.path + '?t=' + Date.now();
+                        container.style.display = 'block';
+                        result.innerHTML = '✅ Gambar BRAT berhasil dibuat!';
+                        result.className = 'result-box success';
+                    } else {
+                        result.innerHTML = '❌ Gagal membuat gambar: ' + data.message;
+                        result.className = 'result-box error';
+                    }
+                })
+                .catch(err => {
+                    result.innerHTML = '❌ Error: ' + err.message;
+                    result.className = 'result-box error';
+                });
         }
+
+        function downloadBRATImage() {
+            const img = document.getElementById('bratGeneratedImage');
+            const link = document.createElement('a');
+            link.download = 'brat_image.png';
+            link.href = img.src;
+            link.click();
+        }
+
+        // ========== REMOVE BG ==========
+        let removeBgFile = null;
+
+        function handleRemoveBG(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            removeBgFile = file;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('removeBgPreview').style.display = 'block';
+                document.getElementById('removeBgImg').src = e.target.result;
+                document.getElementById('removeBgBtn').style.display = 'block';
+                document.getElementById('removeBgResult').innerHTML =
+                    '✅ Foto berhasil diupload! Klik "Hapus Background"';
+                document.getElementById('removeBgResult').className = 'result-box success';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function processRemoveBG() {
+            const result = document.getElementById('removeBgResult');
+            const img = document.getElementById('removeBgImg');
+
+            if (!removeBgFile) {
+                result.innerHTML = '❌ Upload foto dulu!';
+                result.className = 'result-box error';
+                return;
+            }
+
+            result.innerHTML = '🔄 Memproses...';
+            result.className = 'result-box loading';
+
+            const formData = new FormData();
+            formData.append('file', removeBgFile);
+
+            fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        return fetch('/remove-bg', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ filename: data.filename })
+                        });
+                    } else {
+                        throw new Error('Upload gagal');
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        img.src = data.path + '?t=' + Date.now();
+                        result.innerHTML = `
+                                ✅ Background berhasil dihapus!
+                                <div style="margin-top:8px;">
+                                    <button class="btn-primary" style="width:auto;padding:6px 20px;font-size:12px;" onclick="downloadRemoveBG()"><i class="fas fa-download" style="margin-right:6px;"></i> Download</button>
+                                </div>
+                            `;
+                        result.className = 'result-box success';
+                    } else {
+                        result.innerHTML = '❌ Gagal: ' + data.message;
+                        result.className = 'result-box error';
+                    }
+                })
+                .catch(err => {
+                    result.innerHTML = '❌ Error: ' + err.message;
+                    result.className = 'result-box error';
+                });
+        }
+
+        function downloadRemoveBG() {
+            const img = document.getElementById('removeBgImg');
+            const link = document.createElement('a');
+            link.download = 'removed_bg.png';
+            link.href = img.src;
+            link.click();
+        }
+
+        // ========== FOTO TO LINK ==========
+        let fotoLinkFile = null;
+
+        function handleFotoLink(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            fotoLinkFile = file;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('fotoLinkPreview').style.display = 'block';
+                document.getElementById('fotoLinkImg').src = e.target.result;
+                document.getElementById('fotoLinkBtn').style.display = 'block';
+                document.getElementById('fotoLinkResult').innerHTML =
+                    '✅ Foto berhasil diupload! Pilih format dan klik "Buat Link"';
+                document.getElementById('fotoLinkResult').className = 'result-box success';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function processFotoLink() {
+            const result = document.getElementById('fotoLinkResult');
+            const linkInput = document.getElementById('fotoLinkResultLink');
+            const format = document.getElementById('fotoLinkFormat').value;
+
+            if (!fotoLinkFile) {
+                result.innerHTML = '❌ Upload foto dulu!';
+                result.className = 'result-box error';
+                return;
+            }
+
+            result.innerHTML = '🔄 Memproses...';
+            result.className = 'result-box loading';
+
+            const formData = new FormData();
+            formData.append('file', fotoLinkFile);
+
+            fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const link = `${window.location.origin}/uploads/${data.filename}`;
+                        linkInput.value = link;
+                        result.innerHTML = `
+                                ✅ Link berhasil dibuat!
+                                <div style="margin-top:6px;font-size:11px;word-break:break-all;background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;">
+                                    ${link}
+                                </div>
+                                <div style="margin-top:6px;">
+                                    <button class="btn-primary" style="width:auto;padding:6px 20px;font-size:12px;" onclick="navigator.clipboard.writeText('${link}').then(()=>alert('Link disalin!')).catch(()=>alert('Salin manual: '+link))"><i class="fas fa-copy" style="margin-right:6px;"></i> Salin Link</button>
+                                    <button class="btn-primary" style="width:auto;padding:6px 20px;font-size:12px;background:#25D366;" onclick="window.open('${link}','_blank')"><i class="fas fa-external-link-alt" style="margin-right:6px;"></i> Buka Link</button>
+                                </div>
+                            `;
+                        result.className = 'result-box success';
+                    } else {
+                        result.innerHTML = '❌ Gagal upload: ' + data.message;
+                        result.className = 'result-box error';
+                    }
+                })
+                .catch(err => {
+                    result.innerHTML = '❌ Error: ' + err.message;
+                    result.className = 'result-box error';
+                });
+        }
+
+        // ========== FAKE CALL ==========
+        function generateFakeCall() {
+            const name = document.getElementById('fakeName');
+            const result = document.getElementById('fakeCallResult');
+            const container = document.getElementById('fakeCallImageContainer');
+            const img = document.getElementById('fakeCallGeneratedImage');
+
+            if (!name.value.trim()) {
+                result.innerHTML = '❌ Masukkan nama kontak!';
+                result.className = 'result-box error';
+                return;
+            }
+
+            result.innerHTML = '🔄 Membuat gambar...';
+            result.className = 'result-box loading';
+
+            fetch('/fake-call', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name.value })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        img.src = data.path + '?t=' + Date.now();
+                        container.style.display = 'block';
+                        result.innerHTML = '✅ Gambar Fake Call berhasil dibuat!';
+                        result.className = 'result-box success';
+                    } else {
+                        result.innerHTML = '❌ Gagal membuat gambar: ' + data.message;
+                        result.className = 'result-box error';
+                    }
+                })
+                .catch(err => {
+                    result.innerHTML = '❌ Error: ' + err.message;
+                    result.className = 'result-box error';
+                });
+        }
+
+        function downloadFakeCallImage() {
+            const img = document.getElementById('fakeCallGeneratedImage');
+            const link = document.createElement('a');
+            link.download = 'fake_call.png';
+            link.href = img.src;
+            link.click();
+        }
+
+        // ========== DOWNLOADER ==========
+        let currentPlatform = '';
+
+        function openPlatform(platform) {
+            currentPlatform = platform;
+            document.getElementById('platformGrid').style.display = 'none';
+            document.getElementById('platformForm').style.display = 'block';
+            document.getElementById('platformTitle').textContent = `📥 Download ${platform}`;
+            document.getElementById('downloaderTitle').textContent = `📥 ${platform}`;
+            document.getElementById('downloadUrl').placeholder = `Tempel link ${platform}...`;
+        }
+
+        function doDownload() {
+            const url = document.getElementById('downloadUrl').value.trim();
+            const format = document.getElementById('downloadFormat').value;
+            const resolution = document.getElementById('downloadRes').value;
+            const gif = document.getElementById('downloadGif').checked;
+            const result = document.getElementById('downloadResult');
+
+            if (!url) {
+                result.innerHTML = '❌ Masukkan link dulu!';
+                result.className = 'result-box error';
+                return;
+            }
+
+            result.innerHTML = '⏳ Mengakses galaksi...';
+            result.className = 'result-box loading';
+
+            fetch('/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, format, resolution, gif, platform: currentPlatform })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        result.innerHTML =
+                            `✅ ${data.message}<br>📁 ${data.filename}<br>📱 ${data.platform || 'Unknown'} • 📦 ${data.size || '0 MB'}`;
+                        result.className = 'result-box success';
+                        window.location.href = `/download-file/${data.filename}`;
+                        loadHistory();
+                    } else {
+                        result.innerHTML = `❌ Error: ${data.message}`;
+                        result.className = 'result-box error';
+                    }
+                })
+                .catch(err => {
+                    result.innerHTML = `❌ Gagal: ${err.message}`;
+                    result.className = 'result-box error';
+                });
+        }
+
+        // ========== HISTORY ==========
+        function loadHistory() {
+            fetch('/history')
+                .then(res => res.json())
+                .then(data => {
+                    const box = document.getElementById('historyBox');
+                    if (!data.length) {
+                        box.innerHTML =
+                            '<div style="text-align:center;color:rgba(255,255,255,0.12);font-size:11px;padding:6px 0;">Belum ada riwayat</div>';
+                        return;
+                    }
+                    box.innerHTML = data.reverse().slice(0, 15).map(item =>
+                        `<div class="history-item">
+                                <span>📁 ${item.filename.substring(0, 25)}${item.filename.length > 25 ? '...' : ''}</span>
+                                <span style="font-size:9px;color:rgba(255,255,255,0.15);">${item.size || '0 MB'}</span>
+                            </div>`
+                    ).join('');
+                });
+        }
+
+        function clearHistory() {
+            if (!confirm('Hapus semua riwayat?')) return;
+            fetch('/clear-history', { method: 'POST' })
+                .then(() => loadHistory());
+        }
+
+        // ========== INIT ==========
+        renderMenu();
+        loadHistory();
+        document.getElementById('backBtn').style.display = 'none';
     </script>
+
 </body>
 </html>
