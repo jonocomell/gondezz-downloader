@@ -9,9 +9,6 @@ import subprocess
 import base64
 import random
 import string
-import qrcode
-import io
-import requests
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -26,16 +23,13 @@ UPLOAD_FOLDER = "uploads"
 BRAT_FOLDER = "brat"
 REMOVE_BG_FOLDER = "remove_bg"
 FAKE_CALL_FOLDER = "fake_call"
-QR_FOLDER = "qr"
-IQC_FOLDER = "iqc"
-ENHANCE_FOLDER = "enhance"
 
-for folder in [DOWNLOAD_FOLDER, UPLOAD_FOLDER, BRAT_FOLDER, REMOVE_BG_FOLDER, FAKE_CALL_FOLDER, QR_FOLDER, IQC_FOLDER, ENHANCE_FOLDER]:
+for folder in [DOWNLOAD_FOLDER, UPLOAD_FOLDER, BRAT_FOLDER, REMOVE_BG_FOLDER, FAKE_CALL_FOLDER]:
     os.makedirs(folder, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif', 'mp4', 'webm', 'mov'}
 
-# ========== FUNGSI DASAR ==========
+# ========== FUNGSI ==========
 def sanitize_filename(filename):
     return re.sub(r'[^\w\s.-]', '', filename)
 
@@ -104,7 +98,140 @@ def convert_to_gif(input_path, output_path):
     except:
         return False
 
-# ========== GENERATE GAMBAR ==========
+# ========== GENERATE FAKE CALL (Seperti Gambar) ==========
+def generate_fake_call(name, output_path):
+    try:
+        # Ukuran gambar: 400x800 (seperti layar HP)
+        img = Image.new('RGB', (400, 800), color='#0a0a1a')
+        d = ImageDraw.Draw(img)
+        
+        try:
+            font = ImageFont.truetype("arial.ttf", 18)
+            font_bold = ImageFont.truetype("arialbd.ttf", 22)
+            font_small = ImageFont.truetype("arial.ttf", 14)
+        except:
+            font = ImageFont.load_default()
+            font_bold = font
+            font_small = font
+        
+        # Header - Background hijau WhatsApp
+        d.rectangle([0, 0, 400, 70], fill='#075e54')
+        
+        # Tombol back
+        d.text((15, 25), "‹", fill=(255, 255, 255), font=font_bold)
+        
+        # Judul header
+        d.text((45, 28), "Panggilan", fill=(255, 255, 255), font=font)
+        
+        # Tombol lainnya
+        d.text((360, 28), "⋯", fill=(255, 255, 255), font=font_bold)
+        
+        # Garis bawah header
+        d.rectangle([0, 68, 400, 70], fill='#065a4d')
+        
+        # ===== PROFIL =====
+        # Lingkaran profil besar
+        circle_x = 200
+        circle_y = 180
+        radius = 80
+        
+        # Shadow
+        d.ellipse([circle_x - radius - 5, circle_y - radius - 5, 
+                   circle_x + radius + 5, circle_y + radius + 5], 
+                  fill='#1a1a2e')
+        
+        # Lingkaran profil dengan gradien
+        d.ellipse([circle_x - radius, circle_y - radius, 
+                   circle_x + radius, circle_y + radius], 
+                  fill='#6c2bd9')
+        
+        # Icon orang di tengah lingkaran
+        # Kepala
+        d.ellipse([185, 155, 215, 185], fill=(255, 255, 255, 80))
+        # Badan
+        d.ellipse([175, 195, 225, 215], fill=(255, 255, 255, 80))
+        # Bahu
+        d.ellipse([165, 210, 235, 235], fill=(255, 255, 255, 80))
+        
+        # ===== NAMA =====
+        name_text = name if name else "Dek Piraa"
+        # Bayangan nama
+        d.text((200 - len(name_text) * 6, 285), name_text, fill=(150, 150, 150), font=font_bold)
+        # Nama utama
+        d.text((200 - len(name_text) * 6 - 1, 284), name_text, fill=(255, 255, 255), font=font_bold)
+        
+        # ===== STATUS "Berdering ..." =====
+        status_text = "Berdering ..."
+        d.text((200 - len(status_text) * 4, 318), status_text, fill=(150, 150, 150), font=font_small)
+        
+        # ===== IKON SPEAKER =====
+        # Tombol Speaker (atas)
+        d.ellipse([330, 360, 380, 410], fill='#1a1a2e', outline='#333', width=1)
+        d.text((345, 378), "🔊", fill=(255, 255, 255), font=font_bold)
+        d.text((340, 415), "Speaker", fill=(150, 150, 150), font=font_small)
+        
+        # ===== TOMBOL ANSWER (HIJAU) =====
+        answer_x = 200
+        answer_y = 520
+        answer_r = 45
+        
+        # Shadow
+        d.ellipse([answer_x - answer_r - 3, answer_y - answer_r - 3,
+                   answer_x + answer_r + 3, answer_y + answer_r + 3],
+                  fill='#1a3a1a')
+        
+        # Tombol Answer
+        d.ellipse([answer_x - answer_r, answer_y - answer_r,
+                   answer_x + answer_r, answer_y + answer_r],
+                  fill='#25D366')
+        
+        # Icon telpon di dalam tombol
+        d.text((answer_x - 12, answer_y - 10), "📞", fill=(255, 255, 255), font=font_bold)
+        
+        # Label Answer
+        d.text((answer_x - 25, answer_y + 55), "Answer", fill=(150, 150, 150), font=font_small)
+        
+        # ===== TOMBOL DECLINE (MERAH) =====
+        decline_x = 200
+        decline_y = 620
+        decline_r = 45
+        
+        # Shadow
+        d.ellipse([decline_x - decline_r - 3, decline_y - decline_r - 3,
+                   decline_x + decline_r + 3, decline_y + decline_r + 3],
+                  fill='#3a1a1a')
+        
+        # Tombol Decline
+        d.ellipse([decline_x - decline_r, decline_y - decline_r,
+                   decline_x + decline_r, decline_y + decline_r],
+                  fill='#ff2d55')
+        
+        # Icon X di dalam tombol
+        d.text((decline_x - 10, decline_y - 10), "✕", fill=(255, 255, 255), font=font_bold)
+        
+        # Label Decline
+        d.text((decline_x - 25, decline_y + 55), "Decline", fill=(150, 150, 150), font=font_small)
+        
+        # ===== TOMBOL MESSAGE (BAWAH) =====
+        msg_x = 200
+        msg_y = 710
+        msg_r = 30
+        
+        d.ellipse([msg_x - msg_r, msg_y - msg_r,
+                   msg_x + msg_r, msg_y + msg_r],
+                  fill='#1a1a2e', outline='#333', width=1)
+        d.text((msg_x - 10, msg_y - 8), "💬", fill=(255, 255, 255), font=font)
+        
+        # Label Message
+        d.text((msg_x - 25, msg_y + 38), "Message", fill=(150, 150, 150), font=font_small)
+        
+        img.save(output_path)
+        return True
+    except Exception as e:
+        print(f"Fake Call Error: {e}")
+        return False
+
+# ========== GENERATE BRAT ==========
 def generate_brat_image(text, bg_color, output_path):
     try:
         img = Image.new('RGB', (500, 200), color=bg_color)
@@ -113,53 +240,13 @@ def generate_brat_image(text, bg_color, output_path):
             font = ImageFont.truetype("arial.ttf", 32)
         except:
             font = ImageFont.load_default()
+        
         d.rectangle([5, 5, 495, 195], outline='white', width=3)
         d.text((15, 80), text, fill=(255, 255, 255), font=font)
         img.save(output_path)
         return True
     except Exception as e:
         print(f"BRAT Error: {e}")
-        return False
-
-def generate_fake_call(name, output_path):
-    try:
-        img = Image.new('RGB', (400, 700), color='#0a0a1a')
-        d = ImageDraw.Draw(img)
-        try:
-            font = ImageFont.truetype("arial.ttf", 16)
-            font_bold = ImageFont.truetype("arialbd.ttf", 20)
-        except:
-            font = ImageFont.load_default()
-            font_bold = font
-        
-        # Header
-        d.rectangle([0, 0, 400, 60], fill='#075e54')
-        d.text((150, 20), "WhatsApp", fill=(255, 255, 255), font=font_bold)
-        
-        # Avatar
-        d.ellipse([160, 150, 240, 230], fill='#2a7aaa')
-        d.text((185, 175), "👤", fill=(255, 255, 255), font=font_bold)
-        
-        # Nama
-        d.text((200 - len(name) * 3, 250), name, fill=(255, 255, 255), font=font_bold)
-        d.text((180, 290), "Berdering ...", fill=(150, 150, 150), font=font)
-        
-        # Tombol
-        d.ellipse([330, 360, 380, 410], fill='#1a1a2e', outline='#333', width=1)
-        d.text((345, 378), "🔊", fill=(255, 255, 255), font=font_bold)
-        
-        d.ellipse([170, 450, 230, 510], fill='#25D366')
-        d.text((188, 478), "📞", fill=(255, 255, 255), font=font_bold)
-        d.text((185, 525), "Answer", fill=(150, 150, 150), font=font)
-        
-        d.ellipse([170, 570, 230, 630], fill='#ff2d55')
-        d.text((188, 598), "✕", fill=(255, 255, 255), font=font_bold)
-        d.text((185, 645), "Decline", fill=(150, 150, 150), font=font)
-        
-        img.save(output_path)
-        return True
-    except Exception as e:
-        print(f"Fake Call Error: {e}")
         return False
 
 # ========== ROUTES ==========
@@ -224,6 +311,7 @@ def download():
             'quiet': True, 'no_warnings': True, 'ignoreerrors': True, 'extract_flat': False,
         }
 
+        # ===== FORMAT UNTUK JPG/PNG =====
         if format_type in ['jpg', 'png']:
             ydl_opts['format'] = 'best[ext=webp]/best[ext=jpg]/best[ext=png]/best'
             ydl_opts['outtmpl'] = f'{DOWNLOAD_FOLDER}/%(title)s.%(ext)s'
@@ -336,29 +424,37 @@ def brat_generate():
 def brat_file(filename):
     return send_from_directory(BRAT_FOLDER, filename)
 
-# ========== REMOVE BG (Via API) ==========
+# ========== REMOVE BG ==========
 @app.route('/remove-bg', methods=['POST'])
 def remove_bg():
     data = request.json
-    url = data.get('url', '')
-    if not url:
-        return jsonify({'status': 'error', 'message': 'URL gambar diperlukan'}), 400
+    filename = data.get('filename', '')
+    if not filename:
+        return jsonify({'status': 'error', 'message': 'No file'}), 400
+    
+    input_path = os.path.join(UPLOAD_FOLDER, filename)
+    if not os.path.exists(input_path):
+        return jsonify({'status': 'error', 'message': 'File not found'}), 404
+    
+    output_filename = f"removed_{filename}.png"
+    output_path = os.path.join(REMOVE_BG_FOLDER, output_filename)
     
     try:
-        api_url = f"https://api-nanzz.my.id/docs/api/tools/image/removebg.php?url={url}"
-        response = requests.get(api_url)
-        if response.status_code != 200:
-            return jsonify({'status': 'error', 'message': 'Gagal memproses gambar'}), 500
-        
-        filename = f"removebg_{int(time.time())}.png"
-        filepath = os.path.join(REMOVE_BG_FOLDER, filename)
-        with open(filepath, 'wb') as f:
-            f.write(response.content)
-        
+        img = Image.open(input_path).convert('RGBA')
+        data_img = img.getdata()
+        new_data = []
+        for item in data_img:
+            if item[0] > 200 and item[1] > 200 and item[2] > 200:
+                new_data.append((255, 255, 255, 0))
+            else:
+                new_data.append(item)
+        img.putdata(new_data)
+        img.save(output_path, 'PNG')
         return jsonify({
             'status': 'success',
-            'filename': filename,
-            'path': f'/remove-bg/{filename}'
+            'message': 'Background berhasil dihapus!',
+            'filename': output_filename,
+            'path': f'/remove-bg/{output_filename}'
         })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
@@ -366,69 +462,6 @@ def remove_bg():
 @app.route('/remove-bg/<filename>')
 def remove_bg_file(filename):
     return send_from_directory(REMOVE_BG_FOLDER, filename)
-
-# ========== IMAGE ENHANCER ==========
-@app.route('/enhance-image', methods=['POST'])
-def enhance_image():
-    data = request.json
-    url = data.get('url', '')
-    if not url:
-        return jsonify({'status': 'error', 'message': 'URL gambar diperlukan'}), 400
-    
-    try:
-        api_url = f"https://api-nanzz.my.id/docs/api/tools/image/enhancer.php?url={url}"
-        response = requests.get(api_url)
-        if response.status_code != 200:
-            return jsonify({'status': 'error', 'message': 'Gagal memproses gambar'}), 500
-        
-        filename = f"enhanced_{int(time.time())}.png"
-        filepath = os.path.join(ENHANCE_FOLDER, filename)
-        with open(filepath, 'wb') as f:
-            f.write(response.content)
-        
-        return jsonify({
-            'status': 'success',
-            'filename': filename,
-            'path': f'/enhance/{filename}'
-        })
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-@app.route('/enhance/<filename>')
-def enhance_file(filename):
-    return send_from_directory(ENHANCE_FOLDER, filename)
-
-# ========== IQC GENERATOR ==========
-@app.route('/iqc-generate', methods=['POST'])
-def iqc_generate():
-    data = request.json
-    text = data.get('text', 'IQC')
-    provider = data.get('provider', 'Axis')
-    jam = data.get('jam', 12)
-    baterai = data.get('baterai', 65)
-    
-    try:
-        api_url = f"https://api.nexray.eu.cc/maker/v1/iqc?text={text}&provider={provider}&jam={jam}&baterai={baterai}"
-        response = requests.get(api_url)
-        if response.status_code != 200:
-            return jsonify({'status': 'error', 'message': 'Gagal generate IQC'}), 500
-        
-        filename = f"iqc_{int(time.time())}.png"
-        filepath = os.path.join(IQC_FOLDER, filename)
-        with open(filepath, 'wb') as f:
-            f.write(response.content)
-        
-        return jsonify({
-            'status': 'success',
-            'filename': filename,
-            'path': f'/iqc/{filename}'
-        })
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-@app.route('/iqc/<filename>')
-def iqc_file(filename):
-    return send_from_directory(IQC_FOLDER, filename)
 
 # ========== FAKE CALL ==========
 @app.route('/fake-call', methods=['POST'])
@@ -443,26 +476,6 @@ def fake_call():
 @app.route('/fake-call/<filename>')
 def fake_call_file(filename):
     return send_from_directory(FAKE_CALL_FOLDER, filename)
-
-# ========== QR CODE GENERATOR ==========
-@app.route('/qr-generate', methods=['POST'])
-def qr_generate():
-    data = request.json
-    text = data.get('text', 'https://gondezz-downloader.up.railway.app')
-    filename = f"qr_{int(time.time())}.png"
-    filepath = os.path.join(QR_FOLDER, filename)
-    
-    qr = qrcode.QRCode(version=1, box_size=10, border=4)
-    qr.add_data(text)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save(filepath)
-    
-    return jsonify({'status': 'success', 'filename': filename, 'path': f'/qr/{filename}'})
-
-@app.route('/qr/<filename>')
-def qr_file(filename):
-    return send_from_directory(QR_FOLDER, filename)
 
 if __name__ == '__main__':
     print("🔥 GONDEZZ DOWNLOADER V1.0")
