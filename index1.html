@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GONDEZZ GALAXY</title>
+    <style>
+        /* --- RESET & FONT --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: #0a0a1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- BINTANG JATUH (Meteor) --- */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.6);
+            animation: shoot linear infinite;
+        }
+
+        .shooting-star::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(to left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8));
+            transform: rotate(180deg);
+            transform-origin: right center;
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translate(0, 0) rotate(-30deg);
+                opacity: 1;
+            }
+            70% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-500px, 500px) rotate(-30deg);
+                opacity: 0;
+            }
+        }
+
+        /* --- GALAXY BACKGROUND (Animasi Bintang) --- */
+        .galaxy-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        }
+
+        .stars-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(2px 2px at 50px 160px, #ddd, transparent),
+                radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 130px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 30px, rgba(255,255,255,0.7), transparent);
+            background-size: 200px 200px;
+            background-repeat: repeat;
+            opacity: 0.6;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.4; }
+            100% { opacity: 0.9; }
+        }
+
+        /* --- NEBULA (Efek Warna Galaksi) --- */
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.2;
+            animation: float 20s ease-in-out infinite alternate;
+        }
+        .nebula-1 {
+            width: 400px;
+            height: 400px;
+            background: #ff2d55;
+            top: -100px;
+            left: -100px;
+        }
+        .nebula-2 {
+            width: 500px;
+            height: 500px;
+            background: #6c2bd9;
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+        .nebula-3 {
+            width: 300px;
+            height: 300px;
+            background: #00d4ff;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 10s;
+            opacity: 0.1;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, -30px) scale(1.2); }
+        }
+
+        /* --- CONTAINER UTAMA --- */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 420px;
+            width: 100%;
+            background: rgba(10, 10, 30, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 30px 25px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(108, 43, 217, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: scale(1.01);
+        }
+
+        /* --- HEADER --- */
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .logo h1 {
+            font-size: 34px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff2d55, #ff6b35, #6c2bd9, #00d4ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientMove 4s ease-in-out infinite alternate;
+            letter-spacing: 2px;
+            text-shadow: 0 0 40px rgba(108, 43, 217, 0.3);
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -5px;
+            font-weight: 300;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #6c2bd9, transparent);
+            margin: 10px auto 20px;
+            border-radius: 10px;
+        }
+
+        /* --- INPUT GROUP --- */
+        .input-group {
+            margin-bottom: 18px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 15px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: #6c2bd9;
+            background: rgba(108, 43, 217, 0.1);
+            box-shadow: 0 0 25px rgba(108, 43, 217, 0.15);
+        }
+        .input-group select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        /* --- BUTTON --- */
+        .btn-download {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ff2d55, #6c2bd9);
+            border: none;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 30px rgba(108, 43, 217, 0.3);
+        }
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(108, 43, 217, 0.5);
+        }
+        .btn-download:active {
+            transform: scale(0.97);
+        }
+        .btn-download::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        /* --- STATUS --- */
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            font-size: 14px;
+            text-align: center;
+            min-height: 60px;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+        .success {
+            color: #4ade80 !important;
+            border-color: rgba(74, 222, 128, 0.2) !important;
+        }
+        .error {
+            color: #f87171 !important;
+            border-color: rgba(248, 113, 113, 0.2) !important;
+        }
+        .loading {
+            color: #fbbf24 !important;
+            border-color: rgba(251, 191, 36, 0.2) !important;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 1px;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(108, 43, 217, 0.2);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #6c2bd9;
+            margin-top: 8px;
+            border: 1px solid rgba(108, 43, 217, 0.1);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 480px) {
+            .container { padding: 20px 18px; }
+            .logo h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- GALAXY BACKGROUND -->
+    <div class="galaxy-bg">
+        <div class="stars-layer"></div>
+    </div>
+
+    <!-- NEBULA -->
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <!-- METEOR / BINTANG JATUH -->
+    <div class="stars" id="meteor-container"></div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <div class="logo">
+            <h1>⬇️ GONDEZZ</h1>
+        </div>
+        <div class="subtitle">✦ GALAXY DOWNLOADER ✦</div>
+        <div class="divider"></div>
+
+        <div class="input-group">
+            <label>🌌 LINK KOSMIK</label>
+            <input type="text" id="urlInput" placeholder="Tempel link YouTube/TikTok/IG...">
+        </div>
+
+        <div class="input-group">
+            <label>🎯 FORMAT</label>
+            <select id="formatSelect">
+                <option value="mp4">🎬 MP4 (Video)</option>
+                <option value="mp3">🎵 MP3 (Audio)</option>
+            </select>
+        </div>
+
+        <button class="btn-download" onclick="downloadMedia()">⬇️ DOWNLOAD NOW</button>
+
+        <div id="status">✨ Siap download...</div>
+
+        <div class="badge">🔥 v3.0 | Only Android</div>
+        <div class="footer">© 2026 Gondezz Studio</div>
+    </div>
+
+    <script>
+        // === BINTANG JATUH (METEOR) ===
+        function createMeteors() {
+            const container = document.getElementById('meteor-container');
+            const count = 12;
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.classList.add('shooting-star');
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                star.style.animationDelay = (Math.random() * 8) + 's';
+                star.style.width = (Math.random() * 2 + 1) + 'px';
+                star.style.height = star.style.width;
+                container.appendChild(star);
+            }
+        }
+        createMeteors();
+
+        // === DOWNLOAD FUNCTION ===
+        function downloadMedia() {
+            const url = document.getElementById('urlInput').value.trim();
+            const format = document.getElementById('formatSelect').value;
+            const status = document.getElementById('status');
+
+            if (!url) {
+                status.innerHTML = '❌ Masukkan link dulu, Tuan!';
+                status.className = 'error';
+                return;
+            }
+
+            status.innerHTML = '⏳ Mengakses galaksi...';
+            status.className = 'loading';
+
+            fetch('http://localhost:5000/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, format: format })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    status.innerHTML = `✅ ${data.message} <br> 📁 ${data.filename}`;
+                    status.className = 'success';
+                    window.location.href = `http://localhost:5000/download-file/${data.filename}`;
+                } else {
+                    status.innerHTML = `❌ Error: ${data.message}`;
+                    status.className = 'error';
+                }
+            })
+            .catch(err => {
+                status.innerHTML = `❌ Gagal konek ke server: ${err.message}`;
+                status.className = 'error';
+            });
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GONDEZZ DOWNLOADER V2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a0a1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            position: relative;
+            transition: background 0.3s;
+        }
+        body.light { background: #e8e8f0; }
+
+        /* BINTANG JATUH */
+        .stars {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .shooting-star {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px 2px rgba(255,255,255,0.6);
+            animation: shoot linear infinite;
+        }
+        .shooting-star::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 80px; height: 1px;
+            background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.8));
+            transform: rotate(180deg);
+            transform-origin: right center;
+        }
+        @keyframes shoot {
+            0% { transform: translate(0,0) rotate(-30deg); opacity: 1; }
+            70% { opacity: 1; }
+            100% { transform: translate(-500px,500px) rotate(-30deg); opacity: 0; }
+        }
+
+        /* GALAXY BG */
+        .galaxy-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        }
+        body.light .galaxy-bg {
+            background: radial-gradient(ellipse at bottom, #d4d4e8 0%, #e8e8f0 100%);
+        }
+        .stars-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(2px 2px at 50px 160px, #ddd, transparent),
+                radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 130px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 30px, rgba(255,255,255,0.7), transparent);
+            background-size: 200px 200px;
+            background-repeat: repeat;
+            opacity: 0.6;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.4; }
+            100% { opacity: 0.9; }
+        }
+
+        /* NEBULA */
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 400px; height: 400px; background: #ff2d55; top: -100px; left: -100px; }
+        .nebula-2 { width: 500px; height: 500px; background: #6c2bd9; bottom: -150px; right: -150px; animation-delay: 5s; }
+        .nebula-3 { width: 300px; height: 300px; background: #00d4ff; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: 10s; opacity: 0.08; }
+        @keyframes float {
+            0% { transform: translate(0,0) scale(1); }
+            100% { transform: translate(50px,-30px) scale(1.2); }
+        }
+
+        /* CONTAINER */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 440px;
+            width: 100%;
+            background: rgba(10,10,30,0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 22px 18px 18px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(108,43,217,0.15);
+            transition: all 0.3s;
+        }
+        body.light .container {
+            background: rgba(255,255,255,0.88);
+            border-color: rgba(0,0,0,0.08);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+
+        .logo h1 {
+            font-size: 30px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff2d55, #ff6b35, #6c2bd9, #00d4ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientMove 4s ease-in-out infinite alternate;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.35);
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: -3px;
+        }
+        body.light .subtitle { color: rgba(0,0,0,0.35); }
+
+        .divider {
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #6c2bd9, transparent);
+            margin: 6px auto 14px;
+            border-radius: 10px;
+        }
+
+        .input-group { margin-bottom: 10px; }
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 3px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        body.light .input-group label { color: rgba(0,0,0,0.45); }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        body.light .input-group input,
+        body.light .input-group select {
+            background: rgba(0,0,0,0.04);
+            border-color: rgba(0,0,0,0.08);
+            color: #000;
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: #6c2bd9;
+            background: rgba(108,43,217,0.08);
+            box-shadow: 0 0 20px rgba(108,43,217,0.1);
+        }
+        .input-group select option { background: #1a1a2e; color: #fff; }
+        body.light .input-group select option { background: #fff; color: #000; }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0 10px;
+            flex-wrap: wrap;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #6c2bd9;
+        }
+        .checkbox-group label {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+        }
+        body.light .checkbox-group label { color: rgba(0,0,0,0.5); }
+
+        .btn-download {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #ff2d55, #6c2bd9);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 25px rgba(108,43,217,0.25);
+        }
+        .btn-download:active { transform: scale(0.97); }
+
+        #status {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            font-size: 12px;
+            text-align: center;
+            min-height: 40px;
+            word-break: break-all;
+            border: 1px solid rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.5);
+            line-height: 1.5;
+        }
+        body.light #status {
+            background: rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.04);
+            color: rgba(0,0,0,0.5);
+        }
+        .success { color: #4ade80 !important; border-color: rgba(74,222,128,0.15) !important; }
+        .error { color: #f87171 !important; border-color: rgba(248,113,113,0.15) !important; }
+        .loading { color: #fbbf24 !important; border-color: rgba(251,191,36,0.15) !important; }
+
+        .badge {
+            display: inline-block;
+            background: rgba(108,43,217,0.12);
+            padding: 3px 12px;
+            border-radius: 16px;
+            font-size: 9px;
+            color: #6c2bd9;
+            margin-top: 6px;
+            border: 1px solid rgba(108,43,217,0.08);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.12);
+            letter-spacing: 1px;
+        }
+        body.light .footer { color: rgba(0,0,0,0.12); }
+
+        .theme-toggle {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: rgba(255,255,255,0.3);
+            z-index: 2;
+        }
+        body.light .theme-toggle { color: rgba(0,0,0,0.3); }
+
+        .history-toggle, .files-toggle {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.2);
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 6px;
+            text-decoration: underline;
+        }
+        body.light .history-toggle, body.light .files-toggle { color: rgba(0,0,0,0.2); }
+
+        #history-box, #files-box {
+            margin-top: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 0 10px;
+        }
+        #history-box.open, #files-box.open { max-height: 200px; padding: 10px; overflow-y: auto; }
+        .history-item, .file-item {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            justify-content: space-between;
+        }
+        body.light .history-item, body.light .file-item { color: rgba(0,0,0,0.4); border-color: rgba(0,0,0,0.03); }
+        .file-item button {
+            background: none;
+            border: none;
+            color: #ff2d55;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 16px 12px; }
+            .logo h1 { font-size: 24px; }
+            .row2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="galaxy-bg"><div class="stars-layer"></div></div>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+    <div class="stars" id="meteor-container"></div>
+
+    <div class="container">
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+        <div class="logo"><h1>⬇️ GONDEZZ</h1></div>
+        <div class="subtitle">✦ GALAXY DOWNLOADER V2 ✦</div>
+        <div class="divider"></div>
+
+        <div class="input-group">
+            <label>🌌 LINK</label>
+            <input type="text" id="urlInput" placeholder="Tempel link YouTube/TikTok/IG/WA/FB/Twitter...">
+        </div>
+
+        <div class="row2">
+            <div class="input-group">
+                <label>🎯 FORMAT</label>
+                <select id="formatSelect">
+                    <option value="mp4">🎬 MP4</option>
+                    <option value="mp3">🎵 MP3</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>📺 RESOLUSI</label>
+                <select id="resolutionSelect">
+                    <option value="144">144p</option>
+                    <option value="360">360p</option>
+                    <option value="720" selected>720p</option>
+                    <option value="1080">1080p</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="playlistCheck">
+            <label for="playlistCheck">📂 Playlist</label>
+            <input type="checkbox" id="gifCheck">
+            <label for="gifCheck">🎞️ Convert to GIF</label>
+            <input type="checkbox" id="compressCheck">
+            <label for="compressCheck">📦 Compress</label>
+            <input type="checkbox" id="autoRenameCheck">
+            <label for="autoRenameCheck">✏️ Auto Rename</label>
+        </div>
+
+        <div class="row2">
+            <div class="input-group">
+                <label>⏱️ Trim Start (ss)</label>
+                <input type="text" id="trimStart" placeholder="00:00">
+            </div>
+            <div class="input-group">
+                <label>⏱️ Trim End (ss)</label>
+                <input type="text" id="trimEnd" placeholder="00:10">
+            </div>
+        </div>
+
+        <button class="btn-download" onclick="downloadMedia()">⬇️ DOWNLOAD NOW</button>
+
+        <div id="status">✨ Siap download...</div>
+
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:4px;">
+            <button class="history-toggle" onclick="toggleHistory()">📜 Riwayat</button>
+            <button class="files-toggle" onclick="toggleFiles()">📁 Files</button>
+        </div>
+        <div id="history-box"></div>
+        <div id="files-box"></div>
+
+        <div style="text-align:center;margin-top:6px;">
+            <span class="badge">🔥 V2.0 | 30 FITUR</span>
+        </div>
+        <div class="footer">© 2026 GONDEZZ STUDIO</div>
+    </div>
+
+    <script>
+        // METEOR
+        (function() {
+            const c = document.getElementById('meteor-container');
+            for (let i = 0; i < 10; i++) {
+                const s = document.createElement('div');
+                s.classList.add('shooting-star');
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                s.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                s.style.animationDelay = (Math.random() * 8) + 's';
+                s.style.width = (Math.random() * 2 + 1) + 'px';
+                s.style.height = s.style.width;
+                c.appendChild(s);
+            }
+        })();
+
+        let dark = true;
+
+        function toggleTheme() {
+            dark = !dark;
+            document.body.classList.toggle('light', !dark);
+            document.querySelector('.theme-toggle').textContent = dark ? '🌙' : '☀️';
+        }
+
+        function downloadMedia() {
+            const url = document.getElementById('urlInput').value.trim();
+            const format = document.getElementById('formatSelect').value;
+            const resolution = document.getElementById('resolutionSelect').value;
+            const playlist = document.getElementById('playlistCheck').checked;
+            const gif = document.getElementById('gifCheck').checked;
+            const compress = document.getElementById('compressCheck').checked;
+            const autoRename = document.getElementById('autoRenameCheck').checked;
+            const trimStart = document.getElementById('trimStart').value.trim();
+            const trimEnd = document.getElementById('trimEnd').value.trim();
+            const status = document.getElementById('status');
+
+            if (!url) {
+                status.innerHTML = '❌ Masukkan link dulu!';
+                status.className = 'error';
+                return;
+            }
+
+            status.innerHTML = '⏳ Mengakses galaksi...';
+            status.className = 'loading';
+
+            fetch('/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, format, resolution, playlist, gif, compress, autoRename, trim_start: trimStart, trim_end: trimEnd })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    if (data.filenames) {
+                        status.innerHTML = `✅ ${data.message}<br>📁 ${data.filenames.join(', ')}`;
+                    } else {
+                        status.innerHTML = `✅ ${data.message}<br>📁 ${data.filename}<br>📱 ${data.platform || 'Unknown'} • 📦 ${data.size || '0 MB'}`;
+                        window.location.href = `/download-file/${data.filename}`;
+                    }
+                    status.className = 'success';
+                    loadHistory();
+                    loadFiles();
+                } else {
+                    status.innerHTML = `❌ Error: ${data.message}`;
+                    status.className = 'error';
+                }
+            })
+            .catch(err => {
+                status.innerHTML = `❌ Gagal: ${err.message}`;
+                status.className = 'error';
+            });
+        }
+
+        function loadHistory() {
+            fetch('/history')
+            .then(res => res.json())
+            .then(data => {
+                const box = document.getElementById('history-box');
+                if (!data.length) {
+                    box.innerHTML = '<div class="history-item">Kosong</div>';
+                    return;
+                }
+                box.innerHTML = data.reverse().slice(0, 20).map(item =>
+                    `<div class="history-item">📁 ${item.filename}<br><small>${item.platform} • ${item.date} • ${item.size || '0 MB'}</small></div>`
+                ).join('');
+            });
+        }
+
+        function loadFiles() {
+            fetch('/list-files')
+            .then(res => res.json())
+            .then(data => {
+                const box = document.getElementById('files-box');
+                if (!data.length) {
+                    box.innerHTML = '<div class="file-item">Kosong</div>';
+                    return;
+                }
+                box.innerHTML = data.map(item =>
+                    `<div class="file-item">
+                        <span>📁 ${item.name} (${item.size})</span>
+                        <div>
+                            <button onclick="shareFile('${item.name}')">📤</button>
+                            <button onclick="deleteFile('${item.name}')">🗑️</button>
+                        </div>
+                    </div>`
+                ).join('');
+            });
+        }
+
+        function shareFile(filename) {
+            window.location.href = `/share/${filename}`;
+        }
+
+        function deleteFile(filename) {
+            if (!confirm(`Hapus ${filename}?`)) return;
+            fetch(`/delete-file/${filename}`, { method: 'DELETE' })
+            .then(() => loadFiles());
+        }
+
+        function toggleHistory() {
+            const box = document.getElementById('history-box');
+            box.classList.toggle('open');
+            if (box.classList.contains('open')) loadHistory();
+        }
+
+        function toggleFiles() {
+            const box = document.getElementById('files-box');
+            box.classList.toggle('open');
+            if (box.classList.contains('open')) loadFiles();
+        }
+
+        // Voice Command (simulasi)
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'id-ID';
+            recognition.continuous = false;
+            recognition.onresult = function(event) {
+                const command = event.results[0][0].transcript;
+                document.getElementById('urlInput').value = command;
+                downloadMedia();
+            };
+            document.addEventListener('dblclick', function() {
+                recognition.start();
+                document.getElementById('status').innerHTML = '🎤 Dengarkan...';
+                document.getElementById('status').className = 'loading';
+            });
+        }
+
+        loadHistory();
+        loadFiles();
+
+        // Cek notifikasi
+        setInterval(() => {
+            fetch('/notification')
+            .then(res => res.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById('status').innerHTML = `🔔 ${data.message}`;
+                    document.getElementById('status').className = 'success';
+                }
+            });
+        }, 3000);
+    </script>
+</body>
+</html>
